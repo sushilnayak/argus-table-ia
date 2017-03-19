@@ -1,0 +1,20 @@
+data work.dx;
+set detail.starting_dataset;
+run;
+
+data workspds.dy;
+set work.dx;
+run;
+
+proc datasets lib=workspds;
+modify dy (asyncindex=yes);
+quit;
+
+data dz;
+set workspds.dy;
+
+proc sort data=dz;by xx;run;
+
+data detail.final_output;
+set dz;
+run;
