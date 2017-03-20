@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import * as klay from 'klayjs';
 // import {select as d3_select} from 'd3-selection'
 
-d3.csv('/data/data.csv',function(d){
+d3.csv('./data/data.csv',function(d){
 
 	let s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.'.concat(d.source)
 	let t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.'.concat(d.target)

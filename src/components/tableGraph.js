@@ -31,7 +31,11 @@ Graph.prototype.getParentNodes = function(find) {
 
     allNodes(this.nodes[find])
 
-    return allNodes_list
+    var uniqueallNodes_list=allNodes_list.filter(function(item, pos, self) {
+                                        return self.indexOf(item) == pos;
+                            })
+    
+    return uniqueallNodes_list
 }
 
 Graph.prototype.getChildrenNodes = function(find) {
@@ -48,7 +52,11 @@ Graph.prototype.getChildrenNodes = function(find) {
 
     allNodes(this.nodes[find])
 
-    return allNodes_list
+    var uniqueallNodes_list=allNodes_list.filter(function(item, pos, self) {
+                                        return self.indexOf(item) == pos;
+                            })
+    
+    return uniqueallNodes_list
 }
 
 Graph.prototype.getReverseImpactAnalysisForKlay=function(find){

@@ -3,7 +3,7 @@ set detail.starting_dataset;
 run;
 
 data workspds.dy;
-set work.dx;
+set detail.starting_dataset;
 run;
 
 proc datasets lib=workspds;
@@ -13,8 +13,14 @@ quit;
 data dz;
 set workspds.dy;
 
-proc sort data=dz;by xx;run;
+proc sort data=dz out=dx;by aa;run;
+proc sort data=detail.geographical_data_for_lookup out=geodata; by aa; run;
 
 data detail.final_output;
-set dz;
+merge dx (in=a keep=col1 col2 rename=(col1=newerColumn1 col2=newerCoumn2))
+      geodata (in=b)
+      ;
+      by aa;
 run;
+
+proc print data=detail.final_output
