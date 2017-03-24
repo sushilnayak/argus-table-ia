@@ -2,14 +2,13 @@ import Node from './components/tableNode';
 import Graph from './components/tableGraph';
 import * as d3 from 'd3';
 import * as klay from 'klayjs';
-import * as colorbrewer from 'colorbrewer'
 
 
 d3.csv('./data/data.csv',function(d){
 
 	var s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.'.concat(d.source)
 	var t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.'.concat(d.target)
-	 
+
 	return {
 		source: s,
 		target: t
@@ -18,12 +17,19 @@ d3.csv('./data/data.csv',function(d){
 },function(error,data){
 
  var allTables=[]
+ var libnames=[]
  var browserWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
  var browserHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
  for(let d of data.filter(x=> x.source!=x.target && x.source.length>0 && x.target.length > 0)){
- 	if(allTables.indexOf(d.source) == -1) allTables.push(d.source)
- 	if(allTables.indexOf(d.target) == -1) allTables.push(d.target)
+   	if(allTables.indexOf(d.source) == -1) allTables.push(d.source)
+   	if(allTables.indexOf(d.target) == -1) allTables.push(d.target)
+
+    let temp_s=d.source.split(".")[0];
+    let temp_t=d.target.split(".")[0];
+
+    if(libnames.indexOf(temp_s)==-1)  libnames.push(temp_s)
+    if(libnames.indexOf(temp_t)==-1)  libnames.push(temp_t)
  }
 
  let nodes={}
@@ -76,19 +82,76 @@ function searcher(searchingNode,forward_reverse="forward",hidework=false){
 }
 
 
-var svg = d3.select('#root').append('svg')
-           .attr('height', browserHeight)
-           .attr('width', browserWidth);
+var svg = d3.select('#graph').append('svg')
+        .attr('height', '100%')
+        .attr('width', '100%');
 
+    // THIS IS THE START OF LEGEND
 
-addEventListener("resize", function(event) {
-     browserWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-     browserHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-     
-     svg.attr('height', browserHeight)
-      .attr('width', browserWidth);
+    // LEGEND ADDITION
+    // addition here is important after svg so that scale and transformation happen on th graph, but we can take care of it if it is needed.
 
-});
+    let categoryKeys = libnames.map((x,i)=>String(i));    
+    // let colors = colorbrewer.Set3[12];
+    let colors=["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]
+    function getColorScale(darkness) {
+        return d3.scaleOrdinal()
+                .domain(categoryKeys)
+                .range(colors.map(function (c) {
+                    return d3.hsl(c).darker(darkness).toString();
+                }));
+    }
+
+    let strokeColor = getColorScale(0.7);
+    let fillColor = getColorScale(-0.1);
+
+    var legend = svg.append('g')
+                    .attr('class', 'legend')
+                    .attr("transform", "translate(20,20)")
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .selectAll('.category')
+                    .data(libnames)
+                    .enter().append('g')
+                    .attr('class', 'category');
+
+    var legendConfig = {
+                        rectWidth: 12,
+                        rectHeight: 12,
+                        xOffset: -10,
+                        yOffset: 30,
+                        xOffsetText: 20,
+                        yOffsetText: 10,
+                        lineHeight: 15
+                       };
+
+    legendConfig.xOffsetText += legendConfig.xOffset;
+    legendConfig.yOffsetText += legendConfig.yOffset;
+
+      legend.append('rect')
+            .attr('x', legendConfig.xOffset)
+            .attr('y', function (d, i) {
+                return legendConfig.yOffset + i * legendConfig.lineHeight;
+            })
+            .attr('height', legendConfig.rectHeight)
+            .attr('width', legendConfig.rectWidth)
+            .attr('fill', function (d) {
+                return fillColor(d);
+            })
+            .attr('stroke', function (d) {
+                return strokeColor(d);
+            });
+
+    legend.append('text')
+          .attr('x', legendConfig.xOffsetText)
+          .attr('y', function (d, i) {
+              return legendConfig.yOffsetText + i * legendConfig.lineHeight;
+          })
+          .text(function (d) {
+              return d;
+          });
+
+    // THIS IS THE END OF LEGEND
 
 document.getElementById("searchtable").addEventListener("click",function(event){
    event.preventDefault();
@@ -176,18 +239,13 @@ function graphCreation(sushil){
                            return d.height
                        })
                        .attr("width", function (d) {
-                         // return d.id.split("|")[0].length*10;
                            return d.width;
                        })
                        .attr('stroke', function (d) {
-                         var code=0;
-                           // return strokeColor(code);
-                           return "#95d12e"
+                           return strokeColor(d.id.split(".")[0]);
                        })
                        .attr('fill', function (d) {
-                         var code=0;
-                           // return fillColor(d.group);
-                           return "#b8e073";
+                           return fillColor(d.id.split(".")[0]);
                        })
                        ;
 

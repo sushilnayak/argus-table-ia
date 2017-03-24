@@ -24,29 +24,6 @@ Node.prototype.getAllParentNodes=function(){
    }
 
    return flatten([this])
-
-    // function flatten(n){
-    //     function flat(f,acc){
-    //         if(f.length==0){
-    //             return acc
-    //         }
-    //         else {
-    //             let y=[];
-    //             for(let i of f){
-    //                 if (acc.indexOf(i.id)!=-1) continue
-    //                 acc.push(i.id)
-    //                 for(let j in i.parent_nodes){
-    //                     y.push(i.parent_nodes[j])
-    //                 }
-    //             }
-                
-    //             return flat(y,acc)
-    //         }
-    //     }
-    //     return flat([n],[])
-    // }
-
-    // return flatten(this)
 }
 
 // Get all Children Nodes regardless of visibility
