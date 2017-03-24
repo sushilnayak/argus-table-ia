@@ -1,3 +1,5 @@
+
+
 var Node = function(id) {
     this.id = id;
     this.child_nodes  = {};
@@ -13,71 +15,66 @@ Node.prototype.addParent = function(parent) {
 }
 // Get all Parent Nodes regardless of visibility
 Node.prototype.getAllParentNodes=function(){
-    let allNodes_list=[this.id]
-    function allNodes(node){
-        for(let key in node.parent_nodes){
-            allNodes_list.push(node.parent_nodes[key].id)
-            if (node.parent_nodes[key].parent_nodes!=null){
-                allNodes(node.parent_nodes[key])
-            }
-        }
-    }
 
-    allNodes(this)
+   const flatten=(deep,flat=[])=>{
+        if(deep.length == 0) return flat;
+        let [head,...tail]=deep
+        if(head.parent_nodes!=undefined || head.parent_nodes!=null) tail=Object.keys(head.parent_nodes).map(x=> head.parent_nodes[x]).concat(tail) 
+        return flatten(tail,flat.concat(head.id))
+   }
 
-    return allNodes_list
+   return flatten([this])
+
+    // function flatten(n){
+    //     function flat(f,acc){
+    //         if(f.length==0){
+    //             return acc
+    //         }
+    //         else {
+    //             let y=[];
+    //             for(let i of f){
+    //                 if (acc.indexOf(i.id)!=-1) continue
+    //                 acc.push(i.id)
+    //                 for(let j in i.parent_nodes){
+    //                     y.push(i.parent_nodes[j])
+    //                 }
+    //             }
+                
+    //             return flat(y,acc)
+    //         }
+    //     }
+    //     return flat([n],[])
+    // }
+
+    // return flatten(this)
 }
 
 // Get all Children Nodes regardless of visibility
 Node.prototype.getAllChildrenNodes=function(){
-    let allNodes_list=[this.id]
-    function allNodes(node){
-        for(let key in node.child_nodes){
-            allNodes_list.push(node.child_nodes[key].id)
-            if (node.child_nodes[key].child_nodes!=null){
-                allNodes(node.child_nodes[key])
+
+    function flatten(n){
+        function flat(f,acc){
+            if(f.length==0){
+                return acc
+            }
+            else {
+                let y=[];
+                for(let i of f){
+                    if (acc.indexOf(i.id)!=-1) continue
+                    acc.push(i.id)
+                    for(let j in i.child_nodes){
+                        y.push(i.child_nodes[j])
+                    }
+                }
+                
+                return flat(y,acc)
             }
         }
+        return flat([n],[])
     }
 
-    allNodes(this)
+    return flatten(this)
 
-    return allNodes_list
 }
-
-
-// Node.prototype.getVisibleParentNodes = function() {   
-//     let allNodes_list=[this.id]
-//     function allNodes(node){
-//         for(let key in node.parent_nodes){
-//             if (node.parent_nodes[key].visible()) allNodes_list.push(node.parent_nodes[key].id)
-//             if (node.parent_nodes[key].parent_nodes!=null){
-//                 allNodes(node.parent_nodes[key])
-//             }
-//         }
-//     }
-
-//     allNodes(this)
-
-//     return allNodes_list
-// }
-
-// Node.prototype.getVisibleChildrenNodes = function() {   
-//     let allNodes_list=[this.id]
-//     function allNodes(node){
-//         for(let key in node.child_nodes){
-//             if (node.child_nodes[key].visible()) allNodes_list.push(node.child_nodes[key].id)
-//             if (node.child_nodes[key].child_nodes!=null){
-//                 allNodes(node.child_nodes[key])
-//             }
-//         }
-//     }
-
-//     allNodes(this)
-
-//     return allNodes_list
-// }
-
-// Node.prototype.getAllChildrenSourceTarget
 
 module.exports=Node

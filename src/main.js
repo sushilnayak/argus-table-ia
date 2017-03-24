@@ -2,13 +2,14 @@ import Node from './components/tableNode';
 import Graph from './components/tableGraph';
 import * as d3 from 'd3';
 import * as klay from 'klayjs';
-// import {select as d3_select} from 'd3-selection'
+import * as colorbrewer from 'colorbrewer'
+
 
 d3.csv('./data/data.csv',function(d){
 
-	let s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.'.concat(d.source)
-	let t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.'.concat(d.target)
-	
+	var s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.'.concat(d.source)
+	var t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.'.concat(d.target)
+	 
 	return {
 		source: s,
 		target: t
@@ -16,9 +17,9 @@ d3.csv('./data/data.csv',function(d){
 
 },function(error,data){
 
- let allTables=[]
- let browserWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
- let browserHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+ var allTables=[]
+ var browserWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+ var browserHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
  for(let d of data.filter(x=> x.source!=x.target && x.source.length>0 && x.target.length > 0)){
  	if(allTables.indexOf(d.source) == -1) allTables.push(d.source)
@@ -26,7 +27,7 @@ d3.csv('./data/data.csv',function(d){
  }
 
  let nodes={}
-
+ let prev_graph={}
  for(let t of allTables){
  	nodes[t]=new Node(t)
  }
@@ -36,18 +37,35 @@ d3.csv('./data/data.csv',function(d){
  	nodes[d.target].addParent(nodes[d.source])
  }
 
-function onlyUnique(value, index, self) { 
-    return self.indexOf(value) === index;
-}
-
 function searcher(searchingNode,forward_reverse="forward",hidework=false){
-    
-    // let node_list=lodashArray.uniq( nodes[searchingNode].getAllParentNodes().concat( nodes[searchingNode].getAllChildrenNodes() )  )
-    let node_list=nodes[searchingNode].getAllParentNodes().concat( nodes[searchingNode].getAllChildrenNodes() ).filter( onlyUnique );
 
-    var graph = new Graph();
-    for (var id of node_list ) {
-        graph.addNode(nodes[id]);
+    if(prev_graph.id!=searchingNode && nodes.hasOwnProperty(searchingNode)==true){
+        
+        let node_list=nodes[searchingNode].getAllParentNodes().concat( nodes[searchingNode].getAllChildrenNodes() ).filter( (value, index, self) => self.indexOf(value) === index );
+
+        var graph = new Graph();
+        for (var id of node_list ) {
+            graph.addNode(nodes[id]);
+        }
+        prev_graph.id=searchingNode
+        prev_graph.graph=graph
+        console.log("Fresh fetch")
+
+    }
+    else if(nodes.hasOwnProperty(searchingNode)==true){
+        console.log("Old Data")
+        graph=prev_graph.graph
+        searchingNode=prev_graph.id
+    }
+    else if(nodes.hasOwnProperty(searchingNode)==false){
+        console.log("Not found")
+        alert("Not found!!!")
+        graph=prev_graph.graph
+        searchingNode=prev_graph.id
+
+        prev_graph.id=prev_graph.id
+        prev_graph.graph=prev_graph.graph
+
     }
 
          if (hidework==true) graph.hideNodesContaining=["WORK.","WORKSPDS."]
