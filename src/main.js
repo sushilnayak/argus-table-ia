@@ -5,13 +5,14 @@ import * as klay from 'klayjs';
 
 
 d3.csv('./data/data.csv',function(d){
+  // var job_name=d.JOB_NAME.toUpperCase()
 
-	var s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.'.concat(d.source)
-	var t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.'.concat(d.target)
+	var s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.' + d.source /*+ "|" + d.job_name*/
+	var t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.' + d.target /*+ "|" + d.job_name*/
 
 	return {
 		source: s,
-		target: t
+		target: t 
 	}
 
 },function(error,data){
