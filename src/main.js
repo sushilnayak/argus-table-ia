@@ -1,14 +1,20 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './main.css';
+
 import Node from './components/tableNode';
 import Graph from './components/tableGraph';
 import * as d3 from 'd3';
 import * as klay from 'klayjs';
 
-
 d3.csv('./data/data.csv',function(d){
   // var job_name=d.JOB_NAME.toUpperCase()
 
+  if (d.target=='_NULL_') d.target=''
+
 	var s=d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.' + d.source /*+ "|" + d.job_name*/
 	var t=d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.' + d.target /*+ "|" + d.job_name*/
+
+   // if (d.source=='_NULL_') d.source=''
 
 	return {
 		source: s,

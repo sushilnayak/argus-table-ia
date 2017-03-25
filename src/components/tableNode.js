@@ -1,5 +1,3 @@
-
-
 var Node = function(id) {
     this.id = id;
     this.child_nodes  = {};
@@ -24,6 +22,28 @@ Node.prototype.getAllParentNodes=function(){
    }
 
    return flatten([this])
+
+
+// function counter(n, acc = 0) {
+//   var _repeat = true;
+
+//   var _n, _acc;
+
+//   while (_repeat) {
+//     _repeat = false;
+
+//     if (n === 0) {
+//       return acc;
+//     } else {
+//       _n = n - 1
+//       _acc = acc + 1
+//       n = _n
+//       acc = _acc
+//       _repeat = true;
+//       continue;
+//     }
+//   }
+// }
 }
 
 // Get all Children Nodes regardless of visibility
