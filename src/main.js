@@ -5,20 +5,27 @@ import Node from './components/tableNode';
 import Graph from './components/tableGraph';
 import * as d3 from 'd3';
 import * as klay from 'klayjs';
+import {decipherLibnameTableName} from './utilities';
 
 d3.csv('./data/data.csv', function(d) {
+    
+    d.source=d.source.toUpperCase()
+    d.target=d.target.toUpperCase()
 
-    if (d.target.toUpperCase() == '_NULL_') d.target = ''
+    let target=decipherLibnameTableName(d.target)
+    let source=decipherLibnameTableName(d.source)
 
-    var s = d.source.indexOf(".") !== -1 || d.source.length == 0 ? d.source : 'WORK.' + d.source 
-    var t = d.target.indexOf(".") !== -1 || d.target.length == 0 ? d.target : 'WORK.' + d.target 
+    let s=source.tablename.length > 0 ? source.libname + "." + source.tablename : '';
+    let t=target.tablename.length > 0 ? target.libname + "." + target.tablename : '';
 
-    if (s.startsWith("WORK.")) s = s.concat("|", d.JOB_NAME)
-    if (t.startsWith("WORK.")) t = t.concat("|", d.JOB_NAME)
+    if (source.libname=='WORK') s = s.concat("|", d.JOB_NAME)
+    if (target.libname=='WORK') t = t.concat("|", d.JOB_NAME)
 
     return {
         source: s,
-        target: t
+        target: t,
+        source_libname:source.libname,
+        target_libname:target.libname
     }
 
 }, function(error, data) {
@@ -29,14 +36,15 @@ d3.csv('./data/data.csv', function(d) {
     var browserHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
     for (let d of data.filter(x => x.source != x.target && x.source.length > 0 && x.target.length > 0)) {
+
         if (allTables.indexOf(d.source) == -1) allTables.push(d.source)
         if (allTables.indexOf(d.target) == -1) allTables.push(d.target)
 
-        let temp_s = d.source.split(".")[0];
-        let temp_t = d.target.split(".")[0];
+        // let temp_s = d.source.split(".")[0];
+        // let temp_t = d.target.split(".")[0];
 
-        if (libnames.indexOf(temp_s) == -1) libnames.push(temp_s)
-        if (libnames.indexOf(temp_t) == -1) libnames.push(temp_t)
+        if (libnames.indexOf(d.source_libname) == -1) libnames.push(d.source_libname)
+        if (libnames.indexOf(d.target_libname) == -1) libnames.push(d.target_libname)
     }
 
     let nodes = {}
