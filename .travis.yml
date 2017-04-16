@@ -1,0 +1,8 @@
+before_script:
+  - npm install
+script: npm test
+language: node_js
+env:
+  - PORT=8000
+node_js:
+  - "7.1.0"
