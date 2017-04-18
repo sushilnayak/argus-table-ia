@@ -9,21 +9,24 @@ import {decipherLibnameTableName} from './utilities';
 
 d3.csv('./data/data.csv', function(d) {
     
-    d.source=d.source.toUpperCase()
-    d.target=d.target.toUpperCase()
+    d.source=d.source.trim().toUpperCase()
+    d.target=d.target.trim().toUpperCase()
+
+    if (d.source=='_NULL_') d.source=''
+    if (d.target=='_NULL_') d.target=''
 
     let target=decipherLibnameTableName(d.target)
     let source=decipherLibnameTableName(d.source)
 
-    let s=source.tablename.length > 0 ? source.libname + "." + source.tablename : '';
-    let t=target.tablename.length > 0 ? target.libname + "." + target.tablename : '';
+    if (source.libname=='WORK' && d.source.startsWith("WORK.")==false) d.source="WORK.".concat(d.source)
+    if (target.libname=='WORK' && d.target.startsWith("WORK.")==false) d.target="WORK.".concat(d.target)
 
-    if (source.libname=='WORK') s = s.concat("|", d.JOB_NAME)
-    if (target.libname=='WORK') t = t.concat("|", d.JOB_NAME)
+    if (source.libname=='WORK') d.source.concat("|", d.JOB_NAME)
+    if (target.libname=='WORK') d.source.concat("|", d.JOB_NAME)
 
     return {
-        source: s,
-        target: t,
+        source: d.source,
+        target: d.target,
         source_libname:source.libname,
         target_libname:target.libname
     }
@@ -256,10 +259,12 @@ d3.csv('./data/data.csv', function(d) {
                 return d.width;
             })
             .attr('stroke', function(d) {
-                return strokeColor(d.id.split(".")[0]);
+                // return strokeColor(d.id.split(".")[0]);
+                return strokeColor(decipherLibnameTableName(d.id).libname)
             })
             .attr('fill', function(d) {
-                return fillColor(d.id.split(".")[0]);
+                // return fillColor(d.id.split(".")[0]);
+                return fillColor(decipherLibnameTableName(d.id).libname)
             });
 
         var text = node.append('text')

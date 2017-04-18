@@ -14,26 +14,36 @@ Graph.prototype.addNode = function(node) {
 }
 
 Graph.prototype.visible = function(id) {
-    return this.hideNodesContaining.map(x => new RegExp(x).test(id)).filter(x => x == true).length > 0 ? false : true
+    return this.hideNodesContaining.map(x => id.startsWith(x)).filter(x => x == true).length > 0 ? false : true
 }
 
 Graph.prototype.getParentNodes = function(find) {
     let graph = this
-    let allNodes_list = [graph.nodes[find].id]
 
-    function allNodes(node) {
-        for (let key in node.parent_nodes) {
-            if (graph.visible(node.parent_nodes[key].id)) allNodes_list.push(node.parent_nodes[key].id)
-            if (node.parent_nodes[key].parent_nodes != null) {
-                allNodes(node.parent_nodes[key])
+    function flatten(n) {
+        function flat(f, acc) {
+            if (f.length == 0) {
+                return acc
+            } else {
+                let y = [];
+                for (let i of f) {
+                    if (acc.indexOf(i.id) != -1) continue
+                    acc.push(i.id)
+                    for (let j in i.parent_nodes) {
+                        y.push(i.parent_nodes[j])
+                    }
+                }
+
+                return flat(y, acc)
             }
         }
+        return flat([n], [])
     }
 
-    allNodes(this.nodes[find])
+    let allNodes_list = flatten(this.nodes[find])
 
     var uniqueallNodes_list = allNodes_list.filter(function(item, pos, self) {
-        return self.indexOf(item) == pos;
+        return self.indexOf(item) == pos && graph.visible(item);
     })
 
     return uniqueallNodes_list
@@ -41,21 +51,31 @@ Graph.prototype.getParentNodes = function(find) {
 
 Graph.prototype.getChildrenNodes = function(find) {
     let graph = this
-    let allNodes_list = [this.nodes[find].id]
 
-    function allNodes(node) {
-        for (let key in node.child_nodes) {
-            if (graph.visible(node.child_nodes[key].id)) allNodes_list.push(node.child_nodes[key].id)
-            if (node.child_nodes[key].child_nodes != null) {
-                allNodes(node.child_nodes[key])
+    function flatten(n) {
+        function flat(f, acc) {
+            if (f.length == 0) {
+                return acc
+            } else {
+                let y = [];
+                for (let i of f) {
+                    if (acc.indexOf(i.id) != -1) continue
+                    acc.push(i.id)
+                    for (let j in i.child_nodes) {
+                        y.push(i.child_nodes[j])
+                    }
+                }
+
+                return flat(y, acc)
             }
         }
+        return flat([n], [])
     }
 
-    allNodes(this.nodes[find])
+    let allNodes_list = flatten(this.nodes[find])
 
     var uniqueallNodes_list = allNodes_list.filter(function(item, pos, self) {
-        return self.indexOf(item) == pos;
+        return self.indexOf(item) == pos && graph.visible(item);
     })
 
     return uniqueallNodes_list
@@ -111,26 +131,43 @@ Graph.prototype.getReverseImpactAnalysisForKlay = function(find) {
     }
 
     let counter = 0
+    let _tempnodes=[]
+    let _templinks=[]
+
     for (let p of parent) {
         counter += 1;
         let pid = getParent(graph.nodes[p], counter)
         let nodeOfInterest = graph.nodes[p].id.startsWith("WORK.") ? graph.nodes[p].id.split("|")[0] : graph.nodes[p].id
 
-        klayNodes.push({
-            id: nodeOfInterest,
-            width: nodeOfInterest.length * 10,
-            height: 30,
-            padding: {
-                left: 50,
-                right: 50,
-                top: 50,
-                botton: 50
-            }
-        })
+        if (_tempnodes.indexOf(nodeOfInterest)==-1){
+
+            _tempnodes.push(nodeOfInterest)
+
+            klayNodes.push({
+                id: nodeOfInterest,
+                width: nodeOfInterest.length * 10,
+                height: 30,
+                padding: {
+                    left: 50,
+                    right: 50,
+                    top: 50,
+                    botton: 50
+                }
+            })
+
+        }
+
 
         if (pid.length != 0) {
             for (let kl of pid) {
-                klayLinks.push(kl)
+
+                if(_templinks.indexOf(kl.source+'|'+kl.target)==-1){
+
+                    _templinks.push(kl.source+'|'+kl.target)
+                    klayLinks.push(kl)
+
+                }
+                
             }
         }
     }
@@ -195,27 +232,40 @@ Graph.prototype.getForwardImpactAnalysisForKlay = function(find) {
     }
 
     let counter = 0
+    let _tempnodes=[]
+    let _templinks=[]
+
     for (let p of children) {
         counter += 1;
         let pid = getChildren(graph.nodes[p], counter)
         let nodeOfInterest = graph.nodes[p].id.startsWith("WORK.") ? graph.nodes[p].id.split("|")[0] : graph.nodes[p].id
 
-        klayNodes.push({
-            // id: graph.nodes[p].id,
-            id: nodeOfInterest,
-            width: nodeOfInterest.length * 10,
-            height: 30,
-            padding: {
-                left: 50,
-                right: 50,
-                top: 50,
-                botton: 50
-            }
-        })
+        if (_tempnodes.indexOf(nodeOfInterest)==-1){
+
+            _tempnodes.push(nodeOfInterest)
+
+            klayNodes.push({
+                // id: graph.nodes[p].id,
+                id: nodeOfInterest,
+                width: nodeOfInterest.length * 10,
+                height: 30,
+                padding: {
+                    left: 50,
+                    right: 50,
+                    top: 50,
+                    botton: 50
+                }
+            })
+
+        }
+
 
         if (pid.length != 0) {
             for (let kl of pid) {
-                klayLinks.push(kl)
+                if (_templinks.indexOf(kl.source+'|'+kl.target)==-1){
+                    _templinks.push(kl.source+'|'+kl.target)
+                    klayLinks.push(kl)
+                }
             }
         }
     }
